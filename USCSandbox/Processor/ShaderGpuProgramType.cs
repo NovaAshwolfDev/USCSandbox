@@ -1,4 +1,4 @@
-﻿namespace USCSandbox.Processor
+namespace USCSandbox.Processor
 {
     public enum ShaderGpuProgramType
     {
@@ -35,7 +35,11 @@
         ConsoleDS = 29,
         ConsoleGS = 30,
         RayTracing = 31,
-        PS5NGGC = 32
+        PS5NGGC = 32,
+        VulkanVS = 33, // Added for Vulkan vertex shaders
+        VulkanFS = 34, // Added for Vulkan fragment shaders
+        GLESVertex = 35, // Added for OpenGL ES vertex shaders
+        GLESFragment = 36 // Added for OpenGL ES fragment shaders
     }
 
     public enum ShaderGpuProgramType55
@@ -72,6 +76,10 @@
         ConsoleDS = 29,
         ConsoleGS = 30,
         RayTracing = 31,
+        VulkanVS = 32, // Added for Vulkan vertex shaders
+        VulkanFS = 33, // Added for Vulkan fragment shaders
+        GLESVertex = 34, // Added for OpenGL ES vertex shaders
+        GLESFragment = 35 // Added for OpenGL ES fragment shaders
     }
 
     public enum ShaderGpuProgramType53
@@ -106,6 +114,10 @@
         ConsoleHS = 27,
         ConsoleDS = 28,
         ConsoleGS = 29,
+        VulkanVS = 30, // Added for Vulkan vertex shaders
+        VulkanFS = 31, // Added for Vulkan fragment shaders
+        GLESVertex = 32, // Added for OpenGL ES vertex shaders
+        GLESFragment = 33 // Added for OpenGL ES fragment shaders
     }
 
     public static class ShaderGpuProgramTypeExtensions
@@ -146,6 +158,10 @@
                 ShaderGpuProgramType55.ConsoleDS => ShaderGpuProgramType.Console,
                 ShaderGpuProgramType55.ConsoleGS => ShaderGpuProgramType.Console,
                 ShaderGpuProgramType55.RayTracing => ShaderGpuProgramType.RayTracing,
+                ShaderGpuProgramType55.VulkanVS => ShaderGpuProgramType.VulkanVS,
+                ShaderGpuProgramType55.VulkanFS => ShaderGpuProgramType.VulkanFS,
+                ShaderGpuProgramType55.GLESVertex => ShaderGpuProgramType.GLESVertex,
+                ShaderGpuProgramType55.GLESFragment => ShaderGpuProgramType.GLESFragment,
                 _ => throw new Exception($"Unsupported gpu program type {_this}"),
             };
         }
@@ -184,6 +200,10 @@
                 ShaderGpuProgramType53.ConsoleHS => ShaderGpuProgramType.ConsoleHS,
                 ShaderGpuProgramType53.ConsoleDS => ShaderGpuProgramType.ConsoleDS,
                 ShaderGpuProgramType53.ConsoleGS => ShaderGpuProgramType.ConsoleGS,
+                ShaderGpuProgramType53.VulkanVS => ShaderGpuProgramType.VulkanVS,
+                ShaderGpuProgramType53.VulkanFS => ShaderGpuProgramType.VulkanFS,
+                ShaderGpuProgramType53.GLESVertex => ShaderGpuProgramType.GLESVertex,
+                ShaderGpuProgramType53.GLESFragment => ShaderGpuProgramType.GLESFragment,
                 _ => throw new Exception($"Unsupported gpu program type {_this}"),
             };
         }
@@ -196,6 +216,8 @@
                     return GPUPlatform.unknown;
 
                 case ShaderGpuProgramType.GLES:
+                case ShaderGpuProgramType.GLESVertex:
+                case ShaderGpuProgramType.GLESFragment:
                     return GPUPlatform.gles;
 
                 case ShaderGpuProgramType.GLES3:
@@ -236,6 +258,8 @@
                     return GPUPlatform.metal;
 
                 case ShaderGpuProgramType.SPIRV:
+                case ShaderGpuProgramType.VulkanVS:
+                case ShaderGpuProgramType.VulkanFS:
                     return GPUPlatform.vulkan;
 
                 case ShaderGpuProgramType.ConsoleVS:
