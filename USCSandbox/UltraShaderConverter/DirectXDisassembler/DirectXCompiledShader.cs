@@ -1,4 +1,4 @@
-﻿using AssetRipper.Export.Modules.Shaders.UltraShaderConverter.DirectXDisassembler.Blocks;
+using AssetRipper.Export.Modules.Shaders.UltraShaderConverter.DirectXDisassembler.Blocks;
 using System.Text;
 
 namespace AssetRipper.Export.Modules.Shaders.UltraShaderConverter.DirectXDisassembler
@@ -55,6 +55,15 @@ namespace AssetRipper.Export.Modules.Shaders.UltraShaderConverter.DirectXDisasse
                     case "SHDR":
                     case "SHEX":
                         blocks[i] = new SHDR(ms, blocks);
+                        break;
+                    case "GLSL": // Added for OpenGL ES shaders
+                        blocks[i] = new GLSL(ms);
+                        break;
+                    case "VULK": // Added for Vulkan shaders
+                        blocks[i] = new VULK(ms);
+                        break;
+                    case "MTLB": // Added for Metal shaders
+                        blocks[i] = new MTLB(ms);
                         break;
                 }
             }
