@@ -114,17 +114,115 @@ namespace AssetRipper.Export.Modules.Shaders.UltraShaderConverter.DirectXDisasse
                             line += " mode_comparison";
                         break;
                     }
-                    // Add cases for mobile-specific declarations here
-                    case Opcode.dcl_resource_texture2d: // Example for mobile-specific declaration
+                    case Opcode.dcl_resource_texture2d:
                     {
-                        line += $", texture2d, {inst.declData.resourceType}";
+                        line += $"t{inst.declData.resourceIndex}, texture2d";
+                        if (inst.declData.resourceReturnType != ResourceReturnType.Unknown)
+                        {
+                            line += ", " + inst.declData.resourceReturnType.ToString().ToLower();
+                        }
                         break;
                     }
-                    case Opcode.dcl_resource_texturecube: // Example for mobile-specific declaration
+                    case Opcode.dcl_resource_texturecube:
                     {
-                        line += $", texturecube, {inst.declData.resourceType}";
+                        line += $"t{inst.declData.resourceIndex}, texturecube";
+                        if (inst.declData.resourceReturnType != ResourceReturnType.Unknown)
+                        {
+                            line += ", " + inst.declData.resourceReturnType.ToString().ToLower();
+                        }
                         break;
                     }
+                    case Opcode.dcl_resource_buffer:
+                    {
+                        line += $"t{inst.declData.resourceIndex}, buffer";
+                        if (inst.declData.resourceReturnType != ResourceReturnType.Unknown)
+                        {
+                            line += ", " + inst.declData.resourceReturnType.ToString().ToLower();
+                        }
+                        break;
+                    }
+                    case Opcode.dcl_resource_structured:
+                    {
+                        line += $"t{inst.declData.resourceIndex}, structured";
+                        if (inst.declData.resourceReturnType != ResourceReturnType.Unknown)
+                        {
+                            line += ", " + inst.declData.resourceReturnType.ToString().ToLower();
+                        }
+                        break;
+                    }
+                    case Opcode.dcl_resource_raw:
+                    {
+                        line += $"t{inst.declData.resourceIndex}, raw";
+                        if (inst.declData.resourceReturnType != ResourceReturnType.Unknown)
+                        {
+                            line += ", " + inst.declData.resourceReturnType.ToString().ToLower();
+                        }
+                        break;
+                    }
+                    case Opcode.dcl_resource_texture1d:
+                    {
+                        line += $"t{inst.declData.resourceIndex}, texture1d";
+                        if (inst.declData.resourceReturnType != ResourceReturnType.Unknown)
+                        {
+                            line += ", " + inst.declData.resourceReturnType.ToString().ToLower();
+                        }
+                        break;
+                    }
+                    case Opcode.dcl_resource_texture3d:
+                    {
+                        line += $"t{inst.declData.resourceIndex}, texture3d";
+                        if (inst.declData.resourceReturnType != ResourceReturnType.Unknown)
+                        {
+                            line += ", " + inst.declData.resourceReturnType.ToString().ToLower();
+                        }
+                        break;
+                    }
+                    case Opcode.dcl_resource_texture2darray:
+                    {
+                        line += $"t{inst.declData.resourceIndex}, texture2darray";
+                        if (inst.declData.resourceReturnType != ResourceReturnType.Unknown)
+                        {
+                            line += ", " + inst.declData.resourceReturnType.ToString().ToLower();
+                        }
+                        break;
+                    }
+                    case Opcode.dcl_resource_texturecubearray:
+                    {
+                        line += $"t{inst.declData.resourceIndex}, texturecubearray";
+                        if (inst.declData.resourceReturnType != ResourceReturnType.Unknown)
+                        {
+                            line += ", " + inst.declData.resourceReturnType.ToString().ToLower();
+                        }
+                        break;
+                    }
+                    case Opcode.dcl_resource_texture2dms:
+                    {
+                        line += $"t{inst.declData.resourceIndex}, texture2dms";
+                        if (inst.declData.resourceReturnType != ResourceReturnType.Unknown)
+                        {
+                            line += ", " + inst.declData.resourceReturnType.ToString().ToLower();
+                        }
+                        break;
+                    }
+                    case Opcode.dcl_resource_texture2dmsarray:
+                    {
+                        line += $"t{inst.declData.resourceIndex}, texture2dmsarray";
+                        if (inst.declData.resourceReturnType != ResourceReturnType.Unknown)
+                        {
+                            line += ", " + inst.declData.resourceReturnType.ToString().ToLower();
+                        }
+                        break;
+                    }
+                    case Opcode.dcl_resource_texture1darray:
+                    {
+                        line += $"t{inst.declData.resourceIndex}, texture1darray";
+                        if (inst.declData.resourceReturnType != ResourceReturnType.Unknown)
+                        {
+                            line += ", " + inst.declData.resourceReturnType.ToString().ToLower();
+                        }
+                        break;
+                    }
+                    // Add more cases for other declarations as needed
                 }
             }
 
