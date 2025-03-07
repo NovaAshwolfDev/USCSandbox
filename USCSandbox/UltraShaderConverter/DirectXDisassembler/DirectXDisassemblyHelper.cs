@@ -1,4 +1,4 @@
-﻿using AssetRipper.Export.Modules.Shaders.UltraShaderConverter.DirectXDisassembler.Blocks;
+using AssetRipper.Export.Modules.Shaders.UltraShaderConverter.DirectXDisassembler.Blocks;
 
 namespace AssetRipper.Export.Modules.Shaders.UltraShaderConverter.DirectXDisassembler
 {
@@ -114,7 +114,17 @@ namespace AssetRipper.Export.Modules.Shaders.UltraShaderConverter.DirectXDisasse
                             line += " mode_comparison";
                         break;
                     }
-                    //todo : assembleSystemValue
+                    // Add cases for mobile-specific declarations here
+                    case Opcode.dcl_resource_texture2d: // Example for mobile-specific declaration
+                    {
+                        line += $", texture2d, {inst.declData.resourceType}";
+                        break;
+                    }
+                    case Opcode.dcl_resource_texturecube: // Example for mobile-specific declaration
+                    {
+                        line += $", texturecube, {inst.declData.resourceType}";
+                        break;
+                    }
                 }
             }
 
