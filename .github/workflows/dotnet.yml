@@ -44,12 +44,6 @@ jobs:
           name: windows-binaries
           path: vcpkg/installed/x64-windows/lib
 
-      # Build C++/CLI Project (SPIRVCrossWrapper)
-      - name: Build C++/CLI Project
-        run: |
-          cd SPIRVCrossWrapper
-          msbuild /p:Configuration=Release SPIRVCrossWrapper.vcxproj
-
       # Restore and Build .NET Solution
       - name: Restore and Build .NET Solution
         run: dotnet build USCSandbox.sln --configuration Release
