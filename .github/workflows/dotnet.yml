@@ -21,28 +21,6 @@ jobs:
         with:
           python-version: '3.x'
 
-      # Cache external dependencies for glslang/SPIRV-Tools
-      - name: Cache glslang / SPIRV-Tools
-        id: cache-externals
-        uses: actions/cache@v3
-        with:
-          path: external/*-build/output
-          key: windows externals ${{ hashFiles('checkout_glslang_spirv_tools.sh', 'build_glslang_spirv_tools.sh') }}
-
-      # Pull glslang / SPIRV-Tools if cache miss
-      - name: Pull glslang / SPIRV-Tools
-        if: steps.cache-externals.outputs.cache-hit != 'true'
-        shell: bash
-        working-directory: ${{ github.workspace }}
-        run: ./checkout_glslang_spirv_tools.sh
-
-      # Build glslang / SPIRV-Tools
-      - name: Build glslang / SPIRV-Tools
-        if: steps.cache-externals.outputs.cache-hit != 'true'
-        shell: bash
-        working-directory: ${{ github.workspace }}
-        run: ./build_glslang_spirv_tools.sh Release 4
-
       # Install SPIRV-Cross using vcpkg
       - name: Install SPIRV-Cross using vcpkg
         shell: bash
