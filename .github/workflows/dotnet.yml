@@ -1,4 +1,3 @@
-# This workflow builds and tests a .NET project
 name: .NET
 
 on:
@@ -29,16 +28,33 @@ jobs:
           nuget-
 
     - name: Restore dependencies
-      run: dotnet restore USCSandbox/USCSandbox.csproj
+      run: dotnet restore USCSandbox.sln
 
-    - name: Ensure SPIRVCross is installed
+    # Install dependencies for building SPIRV-Cross
+    - name: Install build tools
+      run: sudo apt-get update && sudo apt-get install -y cmake ninja-build g++
+
+    # Clone and build SPIRV-Cross
+    - name: Clone SPIRV-Cross
+      run: git clone --depth 1 https://github.com/KhronosGroup/SPIRV-Cross.git external/SPIRV-Cross
+
+    - name: Build SPIRV-Cross
       run: |
-        if ! dotnet list USCSandbox/USCSandbox.csproj package | grep -q "SPIRVCross"; then
-          dotnet add USCSandbox/USCSandbox.csproj package SPIRVCross
-        fi
+        mkdir -p external/SPIRV-Cross/build
+        cd external/SPIRV-Cross/build
+        cmake -G Ninja ..
+        ninja
 
-    - name: Build
-      run: dotnet build USCSandbox/USCSandbox.csproj --no-restore
+    # Export SPIRV-Cross paths for .NET to use
+    - name: Set up SPIRV-Cross paths
+      run: |
+        echo "SPIRV_CROSS_LIB=$(pwd)/external/SPIRV-Cross/build" >> $GITHUB_ENV
+        echo "SPIRV_CROSS_INCLUDE=$(pwd)/external/SPIRV-Cross" >> $GITHUB_ENV
 
-    - name: Test
-      run: dotnet test USCSandbox/USCSandbox.csproj --no-build --verbosity normal
+    # Build the .NET solution
+    - name: Build .NET solution
+      run: dotnet build USCSandbox.sln --no-restore
+
+    # Run tests
+    - name: Test .NET solution
+      run: dotnet test USCSandbox.sln --no-build --verbosity normal
