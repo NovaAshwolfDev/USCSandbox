@@ -1,4 +1,4 @@
-name: .NET
+name: .NET with C++/CLI Integration
 
 on:
   push:
@@ -11,14 +11,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Step 1: Checkout repository
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    # Step 2: Setup .NET environment
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
 
+    # Step 3: Cache NuGet packages (optional for speeding up builds)
     - name: Cache NuGet packages
       uses: actions/cache@v4
       with:
@@ -27,17 +30,19 @@ jobs:
         restore-keys: |
           nuget-
 
+    # Step 4: Restore and Build .NET Solution
     - name: Restore and Build .NET Solution
-      run: dotnet build USCSandbox.sln
+      run: dotnet build USCSandbox.sln --configuration Release
 
-    # Install dependencies for building SPIRV-Cross
-    - name: Install build tools
-      run: sudo apt-get update && sudo apt-get install -y cmake ninja-build g++
+    # Step 5: Install dependencies for SPIRV-Cross and C++/CLI build
+    - name: Install build tools for SPIRV-Cross
+      run: sudo apt-get update && sudo apt-get install -y cmake ninja-build g++ clang
 
-    # Clone and build SPIRV-Cross
+    # Step 6: Clone SPIRV-Cross repository
     - name: Clone SPIRV-Cross
       run: git clone --depth 1 https://github.com/KhronosGroup/SPIRV-Cross.git external/SPIRV-Cross
 
+    # Step 7: Build SPIRV-Cross
     - name: Build SPIRV-Cross
       run: |
         mkdir -p external/SPIRV-Cross/build
@@ -45,12 +50,20 @@ jobs:
         cmake -G Ninja ..
         ninja
 
-    # Export SPIRV-Cross paths for .NET to use
-    - name: Set up SPIRV-Cross paths
-      run: |
-        echo "SPIRV_CROSS_LIB=$(pwd)/external/SPIRV-Cross/build" >> $GITHUB_ENV
-        echo "SPIRV_CROSS_INCLUDE=$(pwd)/external/SPIRV-Cross" >> $GITHUB_ENV
+    # Step 8: Install dependencies for building C++/CLI
+    - name: Install C++/CLI dependencies
+      run: sudo apt-get install -y mono-complete
 
-    # Run tests
-    - name: Test .NET solution
+    # Step 9: Build C++/CLI project (SPIRVCrossWrapper)
+    - name: Build C++/CLI Project
+      run: |
+        cd SPIRVCrossWrapper
+        msbuild /p:Configuration=Release SPIRVCrossWrapper.vcxproj
+
+    # Step 10: Build .NET project
+    - name: Build .NET project
+      run: dotnet build USCSandbox.sln --configuration Release
+
+    # Step 11: Run tests
+    - name: Run tests
       run: dotnet test USCSandbox.sln --verbosity normal
