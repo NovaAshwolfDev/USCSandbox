@@ -27,8 +27,8 @@ jobs:
         restore-keys: |
           nuget-
 
-    - name: Restore dependencies
-      run: dotnet restore USCSandbox.sln
+    - name: Restore and Build .NET Solution
+      run: dotnet build USCSandbox.sln
 
     # Install dependencies for building SPIRV-Cross
     - name: Install build tools
@@ -51,10 +51,6 @@ jobs:
         echo "SPIRV_CROSS_LIB=$(pwd)/external/SPIRV-Cross/build" >> $GITHUB_ENV
         echo "SPIRV_CROSS_INCLUDE=$(pwd)/external/SPIRV-Cross" >> $GITHUB_ENV
 
-    # Build the .NET solution
-    - name: Build .NET solution
-      run: dotnet build USCSandbox.sln --no-restore
-
     # Run tests
     - name: Test .NET solution
-      run: dotnet test USCSandbox.sln --no-build --verbosity normal
+      run: dotnet test USCSandbox.sln --verbosity normal
