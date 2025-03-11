@@ -1,6 +1,4 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
+# This workflow builds and tests a .NET project
 name: .NET
 
 on:
@@ -11,11 +9,11 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -31,13 +29,16 @@ jobs:
           nuget-
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore USCSandbox/USCSandbox.csproj
 
-    - name: Install SPIRVCross (if missing)
-      run: dotnet add package SPIRVCross || echo "SPIRVCross package already installed"
+    - name: Ensure SPIRVCross is installed
+      run: |
+        if ! dotnet list USCSandbox/USCSandbox.csproj package | grep -q "SPIRVCross"; then
+          dotnet add USCSandbox/USCSandbox.csproj package SPIRVCross
+        fi
 
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build USCSandbox/USCSandbox.csproj --no-restore
 
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test USCSandbox/USCSandbox.csproj --no-build --verbosity normal
