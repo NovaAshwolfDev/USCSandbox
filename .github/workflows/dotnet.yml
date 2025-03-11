@@ -43,32 +43,28 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: ./build_glslang_spirv_tools.sh Release 4
 
-      # Build SPIRV-Cross
-      - name: Configure SPIRV-Cross
+      # Install SPIRV-Cross using vcpkg
+      - name: Install SPIRV-Cross using vcpkg
         shell: bash
         run: |
-          mkdir build
-          cd build
-          cmake .. -DSPIRV_CROSS_WERROR=ON -DSPIRV_CROSS_MISC_WARNINGS=ON -DSPIRV_CROSS_SHARED=ON -DCMAKE_INSTALL_PREFIX=output -DCMAKE_BUILD_TYPE=Release -DSPIRV_CROSS_ENABLE_TESTS=ON
+          git clone https://github.com/Microsoft/vcpkg.git
+          cd vcpkg
+          ./bootstrap-vcpkg.sh
+          ./vcpkg integrate install
+          ./vcpkg install spirv-cross
 
+      # Build SPIRV-Cross
       - name: Build SPIRV-Cross
         shell: bash
-        working-directory: ${{ github.workspace }}/build
         run: |
-          cmake --build . --config Release --parallel 4
-          cmake --build . --config Release --target install
+          cd vcpkg
+          ./vcpkg install spirv-cross
 
       # Upload SPIRV-Cross binaries
       - uses: actions/upload-artifact@v4
         with:
           name: windows-binaries
-          path: build/output
-
-      # Run SPIRV-Cross tests
-      - name: Test SPIRV-Cross
-        shell: bash
-        working-directory: ${{ github.workspace }}/build
-        run: ctest --verbose -C Release
+          path: vcpkg/installed/x64-windows/lib
 
       # Build C++/CLI Project (SPIRVCrossWrapper)
       - name: Build C++/CLI Project
