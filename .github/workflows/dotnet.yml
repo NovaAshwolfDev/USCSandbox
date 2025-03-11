@@ -16,13 +16,28 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          nuget-
+
     - name: Restore dependencies
       run: dotnet restore
+
+    - name: Install SPIRVCross (if missing)
+      run: dotnet add package SPIRVCross || echo "SPIRVCross package already installed"
+
     - name: Build
       run: dotnet build --no-restore
+
     - name: Test
       run: dotnet test --no-build --verbosity normal
