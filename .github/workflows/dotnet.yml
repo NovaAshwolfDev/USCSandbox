@@ -21,28 +21,27 @@ jobs:
         with:
           python-version: '3.x'
 
-      # Install SPIRV-Cross using vcpkg
+      # Install vcpkg and SPIRV-Cross
       - name: Install SPIRV-Cross using vcpkg
-        shell: bash
+        shell: pwsh
         run: |
           git clone https://github.com/Microsoft/vcpkg.git
           cd vcpkg
-          ./bootstrap-vcpkg.sh
-          ./vcpkg integrate install
-          ./vcpkg install spirv-cross
-
-      # Build SPIRV-Cross
-      - name: Build SPIRV-Cross
-        shell: bash
-        run: |
-          cd vcpkg
-          ./vcpkg install spirv-cross
+          .\bootstrap-vcpkg.bat
+          .\vcpkg integrate install
+          .\vcpkg install spirv-cross:x64-windows
 
       # Upload SPIRV-Cross binaries
       - uses: actions/upload-artifact@v4
         with:
-          name: windows-binaries
-          path: vcpkg/installed/x64-windows/lib
+          name: spirv-cross-windows-binaries
+          path: vcpkg/installed/x64-windows/
+
+      # Setup .NET 8.0
+      - name: Setup .NET 8.0
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
 
       # Restore and Build .NET Solution
       - name: Restore and Build .NET Solution
@@ -54,7 +53,7 @@ jobs:
 
   reuse:
     name: "REUSE license check"
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     container: khronosgroup/docker-images:asciidoctor-spec
 
     steps:
