@@ -32,10 +32,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    # Build .NET project
-    - name: Build
-      run: dotnet build --no-restore --configuration Release
-
     # Copy SPIRV-Cross DLLs to output directory
     - name: Copy SPIRV-Cross DLLs
       shell: powershell
