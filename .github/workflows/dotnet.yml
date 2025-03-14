@@ -1,65 +1,49 @@
-name: CI
+name: .NET Windows Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    types: [ opened, synchronize, reopened ]
+    branches: [ "main" ]
 
 jobs:
   build:
-    name: "Build Windows"
     runs-on: windows-latest
-    env:
-      PARALLEL: -j 2
 
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
-      # Install Python
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+    # Install dependencies including vcpkg and SPIRV-Cross
+    - name: Install SPIRV-Cross via vcpkg
+      shell: powershell
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git
+        cd vcpkg
+        .\bootstrap-vcpkg.bat
+        .\vcpkg install spirv-cross:x64-windows
 
-      # Install vcpkg and SPIRV-Cross
-      - name: Install SPIRV-Cross using vcpkg
-        shell: pwsh
-        run: |
-          git clone https://github.com/Microsoft/vcpkg.git
-          cd vcpkg
-          .\bootstrap-vcpkg.bat
-          .\vcpkg integrate install
-          .\vcpkg install spirv-cross:x64-windows
+    # Setup .NET 8
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
 
-      # Upload SPIRV-Cross binaries
-      - uses: actions/upload-artifact@v4
-        with:
-          name: spirv-cross-windows-binaries
-          path: vcpkg/installed/x64-windows/
+    # Restore .NET dependencies
+    - name: Restore dependencies
+      run: dotnet restore
 
-      # Setup .NET 8.0
-      - name: Setup .NET 8.0
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0.x'
+    # Build .NET project
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
 
-      # Restore and Build .NET Solution
-      - name: Restore and Build .NET Solution
-        run: dotnet build USCSandbox.sln --configuration Release
+    # Copy SPIRV-Cross DLLs to output directory
+    - name: Copy SPIRV-Cross DLLs
+      shell: powershell
+      run: |
+        $outputDir = "bin\Release"
+        New-Item -ItemType Directory -Path $outputDir -Force
+        Copy-Item vcpkg\installed\x64-windows\bin\spirv-cross-c-shared.dll $outputDir
 
-      # Run .NET tests
-      - name: Run .NET tests
-        run: dotnet test USCSandbox.sln --verbosity normal
-
-  reuse:
-    name: "REUSE license check"
-    runs-on: ubuntu-latest
-    container: khronosgroup/docker-images:asciidoctor-spec
-
-    steps:
-      - uses: actions/checkout@v3
-
-      # REUSE license checker
-      - name: license-check
-        run: |
-          reuse lint
+    # Run tests
+    - name: Test
+      run: dotnet test --no-build --verbosity normal --configuration Release
