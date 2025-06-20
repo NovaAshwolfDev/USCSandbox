@@ -11,14 +11,14 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # Install dependencies including vcpkg and SPIRV-Cross
+    # Install dependencies including vcpkg and SPIRV-Cross shared DLL
     - name: Install SPIRV-Cross via vcpkg
       shell: powershell
       run: |
         git clone https://github.com/microsoft/vcpkg.git
         cd vcpkg
         .\bootstrap-vcpkg.bat
-        .\vcpkg install spirv-cross:x64-windows
+        .\vcpkg install spirv-cross-c-shared:x64-windows
 
     # Setup .NET 8
     - name: Setup .NET
@@ -36,7 +36,7 @@ jobs:
       run: |
         $outputDir = "bin\Release"
         New-Item -ItemType Directory -Path $outputDir -Force
-        Copy-Item vcpkg\installed\x64-windows\bin\spirv-cross-c-shared.dll $outputDir
+        Copy-Item .\vcpkg\installed\x64-windows\bin\spirv-cross-c-shared.dll $outputDir
 
     # Run tests
     - name: Test
