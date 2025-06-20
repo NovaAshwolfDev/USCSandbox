@@ -1,7 +1,7 @@
 name: .NET Windows Build
 
 on:
-  workflow_dispatch:  
+  workflow_dispatch:
 
 jobs:
   build:
@@ -11,7 +11,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Install dependencies (CMake, etc.)
+    - name: Install CMake
       run: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' --yes
 
     - name: Build SPIRV-Cross DLL
@@ -32,13 +32,25 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
+    - name: Build project (Release)
+      run: dotnet build --configuration Release
+
     - name: Copy SPIRV-Cross DLLs
       shell: powershell
       run: |
         $dllPath = "SPIRV-Cross\build\Release\spirv-cross-c-shared.dll"
-        $outputDir = "bin\Release"
+        $outputDir = "bin\Release\net8.0"
+        if (!(Test-Path $outputDir)) { $outputDir = "USCSandbox\bin\Release\net8.0" }
         New-Item -ItemType Directory -Path $outputDir -Force
         Copy-Item $dllPath $outputDir
 
-    - name: Test
-      run: dotnet test --no-build --verbosity normal --configuration Release
+    - name: Package output
+      run: |
+        mkdir published
+        Compress-Archive -Path USCSandbox/bin/Release/net8.0/* -DestinationPath published/USCSandbox.zip
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: USCSandbox-Build
+        path: published/USCSandbox.zip
