@@ -1,10 +1,8 @@
 name: .NET Windows Build
 
+# Run manually from GitHub UI
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
