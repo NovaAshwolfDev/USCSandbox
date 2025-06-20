@@ -1,43 +1,44 @@
 name: .NET Windows Build
 
-# Run manually from GitHub UI
 on:
-  workflow_dispatch:
+  workflow_dispatch:  
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-    # Install dependencies including vcpkg and SPIRV-Cross shared DLL
-    - name: Install SPIRV-Cross via vcpkg
+    - name: Install dependencies (CMake, etc.)
+      run: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' --yes
+
+    - name: Build SPIRV-Cross DLL
       shell: powershell
       run: |
-        git clone https://github.com/microsoft/vcpkg.git
-        cd vcpkg
-        .\bootstrap-vcpkg.bat
-        .\vcpkg install spirv-cross-c-shared:x64-windows
+        git clone https://github.com/KhronosGroup/SPIRV-Cross.git
+        cd SPIRV-Cross
+        mkdir build
+        cd build
+        cmake .. -DSPIRV_CROSS_SHARED=ON -DCMAKE_BUILD_TYPE=Release
+        cmake --build . --config Release
 
-    # Setup .NET 8
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
 
-    # Restore .NET dependencies
     - name: Restore dependencies
       run: dotnet restore
 
-    # Copy SPIRV-Cross DLLs to output directory
     - name: Copy SPIRV-Cross DLLs
       shell: powershell
       run: |
+        $dllPath = "SPIRV-Cross\build\Release\spirv-cross-c-shared.dll"
         $outputDir = "bin\Release"
         New-Item -ItemType Directory -Path $outputDir -Force
-        Copy-Item .\vcpkg\installed\x64-windows\bin\spirv-cross-c-shared.dll $outputDir
+        Copy-Item $dllPath $outputDir
 
-    # Run tests
     - name: Test
       run: dotnet test --no-build --verbosity normal --configuration Release
